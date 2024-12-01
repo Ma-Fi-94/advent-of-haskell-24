@@ -13,8 +13,8 @@ main = do
               $ fileContents
 
     -- Left and right column of the input
-    let left  = map (!!0) input
-    let right = map (!!1) input
+    let left  = map head input
+    let right = map last input
 
     -- Part 1: Sum of absolute differences of sorted column elements
     print $ sum
