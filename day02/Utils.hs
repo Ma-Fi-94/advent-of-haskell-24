@@ -100,10 +100,13 @@ tok delims input@(x:xs)
 map2 :: (a -> b) -> [[a]] -> [[b]]
 map2 f = map (map f)
 
--- Remove the i-th element of a given list xs
+-- Remove the i-th element of a given list xs.
 pop :: Int -> [a] -> [a]
 pop i xs = (take i xs) ++ (drop (i + 1) xs)
 
+-- Count how many element of a list fulfil a predicat.
+countTrue :: (a -> Bool) -> [a] -> Int
+countTrue p = length . filter p
 
 -----------------
 -- Arrow Stuff --
