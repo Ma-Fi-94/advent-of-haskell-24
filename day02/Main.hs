@@ -4,9 +4,7 @@ import Utils (map2, readInt, removeAt, tok)
 
 -- Rolling differences for a list of numbers
 diffs :: Num a => [a] -> [a]
-diffs []         = []
-diffs (x:[])     = []
-diffs (x1:x2:xs) = (x2 - x1) : diffs (x2:xs)
+diffs xs = zipWith (-) (tail xs) xs
 
 
 -- Check whether a list is "safe", i.e.
