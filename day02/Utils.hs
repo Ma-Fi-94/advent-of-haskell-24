@@ -101,8 +101,8 @@ map2 :: (a -> b) -> [[a]] -> [[b]]
 map2 f = map (map f)
 
 -- Remove the i-th element of a given list xs
-removeAt :: Int -> [a] -> [a]
-removeAt i xs = (take i xs) ++ (drop (i + 1) xs)
+pop :: Int -> [a] -> [a]
+pop i xs = (take i xs) ++ (drop (i + 1) xs)
 
 
 -----------------

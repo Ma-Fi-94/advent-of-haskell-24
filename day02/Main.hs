@@ -1,6 +1,6 @@
 module Main where
 
-import Utils (map2, readInt, removeAt, tok)
+import Utils (map2, pop, readInt, tok)
 
 -- Rolling differences for a list of numbers
 diffs :: Num a => [a] -> [a]
@@ -17,8 +17,7 @@ safe l = all (`elem` [1, 2, 3])    (diffs l) ||
 -- Part 2: Given a list, generate all lists where exactly
 -- one element of the given list is left out.
 skips :: [a] -> [[a]]
-skips xs = map (\ i -> removeAt i xs)
-         $ [0 .. (length xs) - 1]
+skips xs = [pop i xs | i <- [0 .. length xs - 1]]
 
 
 -- Part 2: Check whether a list is "safe" based on the new
