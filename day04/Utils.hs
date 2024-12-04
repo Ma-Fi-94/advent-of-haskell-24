@@ -104,9 +104,18 @@ map2 f = map (map f)
 pop :: Int -> [a] -> [a]
 pop i xs = (take i xs) ++ (drop (i + 1) xs)
 
--- Count how many element of a list fulfil a predicat.
+-- Count how many element of a list fulfil a predicate.
 countTrue :: (a -> Bool) -> [a] -> Int
 countTrue p = length . filter p
+
+-- Count how often a list occurs within another list.
+countOcc :: Eq a => [a] -> [a] -> Int
+countOcc _ [] = 0
+countOcc [] _ = error "Utils.countOcc: Empty search list."
+countOcc ndl hay
+    | length ndl > length hay      = 0
+    | ndl == take (length ndl) hay = 1 + countOcc ndl (tail hay)
+    | otherwise                    = countOcc ndl (tail hay)
 
 -----------------
 -- Arrow Stuff --
