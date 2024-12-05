@@ -8,6 +8,14 @@ import Utils (readInt, tok, tuplify2)
 type Rule   = (Int, Int)
 type Update = [Int]
 
+parseInput :: String -> ([Rule], [Update])
+parseInput x = (rules, updates)
+  where
+    blocks  = tok [""] . lines $ x
+    rules   = map parseRule $ blocks !! 0
+    updates = map parseUpdate $ blocks !! 1
+
+
 parseRule :: String -> Rule
 parseRule = tuplify2
           . map readInt
@@ -33,7 +41,7 @@ checkAllRules rules update = all (\ rule -> checkRule rule update) rules
 
 -- Get the middle element of a list.
 middle :: [a] -> a
-middle xs = xs !! (((length xs) - 1) `div` 2)
+middle xs = xs !! (length xs `div` 2)
 
 
 -- Part 1: Find all correct updates and add their middle elements
@@ -71,12 +79,9 @@ part2 rules updates = sum
 main :: IO ()
 main = do
     fileContents <- readFile "input.txt"
-    let input   = tok [""] . lines $ fileContents
-    let rules   = map parseRule $ input !! 0
-    let updates = map parseUpdate $ input !! 1
+    let (rules, updates) = parseInput fileContents
 
     print $ part1 rules updates
     print $ part2 rules updates
 
     print $ "Done."
-
