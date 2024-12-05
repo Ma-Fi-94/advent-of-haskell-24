@@ -2,7 +2,6 @@ module Main where
 
 import Data.List (elemIndex, sortBy)
 import Utils (readInt, tok, tuplify2)
-import Debug.Trace (trace)
 
 -- Some sugar and parsing of input
 
