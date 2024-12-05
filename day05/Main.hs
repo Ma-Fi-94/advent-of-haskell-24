@@ -1,7 +1,8 @@
 module Main where
 
-import Data.List (elemIndex)
+import Data.List (elemIndex, sortBy)
 import Utils (readInt, tok, tuplify2)
+import Debug.Trace (trace)
 
 -- Some sugar and parsing of input
 
@@ -36,12 +37,37 @@ middle :: [a] -> a
 middle xs = xs !! (((length xs) - 1) `div` 2)
 
 
--- Part 1: Find all correct rules and add their middle elements
+-- Part 1: Find all correct updates and add their middle elements
 part1 :: [Rule] -> [Update] -> Int
 part1 rules updates = sum
                     . map middle
                     . filter (checkAllRules rules)
                     $ updates
+
+-- Part 2 --
+
+-- Comparison function based on the provided ruleset.
+-- We will use this for sorting malformed updates.
+comp :: [Rule] -> Int -> Int -> Ordering
+comp rules e1 e2
+    | (e1, e2) `elem` rules = LT
+    | (e2, e1) `elem` rules = GT
+    | otherwise             = EQ
+
+
+-- Given all rules and a defective update, fix it by sorting it.
+fixUpdate :: [Rule] -> Update -> Update
+fixUpdate rules update = sortBy (comp rules) update
+
+
+-- Find all incorrect updates, fix them, and add their middle elements.
+part2 :: [Rule] -> [Update] -> Int
+part2 rules updates = sum
+                    . map middle
+                    . map (fixUpdate rules)
+                    . filter (not . checkAllRules rules)
+                    $ updates
+
 
 main :: IO ()
 main = do
@@ -51,6 +77,7 @@ main = do
     let updates = map parseUpdate $ input !! 1
 
     print $ part1 rules updates
+    print $ part2 rules updates
 
     print $ "Done."
 
