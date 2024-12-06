@@ -52,7 +52,7 @@ at' = flip (!?)
 -- This should actually be present in the base lib, but isn't.
 -- Total version of !!.
 (!?) :: [a] -> Int -> Maybe a
-[] !? n     = Nothing
+[] !? _     = Nothing
 (x:_) !? 0  = Just x
 (_:xs) !? n = xs !? (n-1)
 

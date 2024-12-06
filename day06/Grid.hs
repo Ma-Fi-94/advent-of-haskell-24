@@ -97,9 +97,17 @@ fromJust' err mb = case mb of
 
 
 -- Partial versions of the mb* functions, for convenience.
+
+row :: Grid a -> Int -> [a]
 row g i  = fromJust' "Grid.row: Out of bounds." $ mbRow g i
+
+col :: Grid a -> Int -> [a]
 col g i  = fromJust' "Grid.col: Out of bounds." $ mbCol g i
+
+cell :: Grid a -> Coord -> a
 cell g c = fromJust' "Grid.cell: Out of bounds." $ mbCell g c
+
+set :: Grid a -> Coord -> a -> Grid a
 set g c x = fromJust' "Grid.set: Out of bounds." $ mbSet g c x
 
 
