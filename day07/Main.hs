@@ -2,7 +2,8 @@ module Main where
 
 import Utils (at, readInt, tok)
 
-type Line = (Int, [Int])
+type Line            = (Int, [Int])
+type BinaryOperation = Int -> Int -> Int
 
 -- Parsing of a single line of the input file.
 parseLine :: String -> Line
@@ -12,41 +13,28 @@ parseLine line = (target, values)
     values = map readInt . tok " " . at 1 . tok ":" $ line
 
 
--- Check whether a given entry is solvable (Part 1)
-solvable :: Line -> Bool
-solvable (target, values) = go (head values) (tail values)
+-- Check whether a given line is solvable using a list of given
+-- binary operations. Due to our "early stopping", this solver
+-- only works for operations ⊕ which satisfy a, b < a ⊕ b.
+solvableWith :: [BinaryOperation] -> Line  -> Bool
+solvableWith operations (target, values) = go (head values) (tail values)
   where
     go accum remaining
         | accum > target                    = False
         | null remaining && accum /= target = False
         | null remaining && accum == target = True
-        | otherwise                         = added || multiplied
+        | otherwise                         = any tryOperation operations
           where
-            curValue   = head remaining
-            remaining' = tail remaining
-            added      = go (accum + curValue) remaining'
-            multiplied = go (accum * curValue) remaining'
+            tryOperation = (\ op -> go (accum `op` curValue) remaining')
+            curValue     = head remaining
+            remaining'   = tail remaining
 
 
--- Check whether a given entry is solvable (Part 2)
-solvable' :: Line -> Bool
-solvable' (target, values) = go (head values) (tail values)
-  where
-    go accum remaining
-        | accum > target                    = False
-        | null remaining && accum /= target = False
-        | null remaining && accum == target = True
-        | otherwise                         = added || multiplied || concated
-          where
-            curValue   = head remaining
-            remaining' = tail remaining
-            added      = go (accum + curValue) remaining'
-            multiplied = go (accum * curValue) remaining'
-            concated   = go (readInt (show accum ++ show curValue)) remaining'
+-- For Part 2, we define the concatInt operation as (|||), since (||) is
+-- already taken.
+(|||) :: Int -> Int -> Int
+(|||) i1 i2 = readInt $ show i1 ++ show i2
 
--- It may be noted that there is an obvious generalisation of `solvable`,
--- where we provide a list of arbitrary binary operations which is mapped
--- over in the recursive call of `go`.
 
 main :: IO ()
 main = do
@@ -55,12 +43,12 @@ main = do
 
     print $ sum
           . map fst
-          . filter solvable
+          . filter (solvableWith [(+), (*)])
           $ input
 
     print $ sum
           . map fst
-          . filter solvable'
+          . filter (solvableWith [(+), (*), (|||)])
           $ input
 
     print $ "Done."
