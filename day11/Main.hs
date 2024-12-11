@@ -37,19 +37,22 @@ nextState = Map.fromListWith (+)
           . Map.assocs
 
 
+-- Given a starting state, xecute n steps, return the sum of stones present.
+countStonesAfter :: Int -> State -> Int
+countStonesAfter n  = sum
+                    . map snd
+                    . Map.assocs
+                    . (!! n)
+                    . iterate nextState
+
+
 main :: IO ()
 main = do
     fileContents <- readFile "input.txt"
     let state0    = parseInput fileContents
 
-    print $ sum
-          . map snd
-          . Map.assocs
-          $ (iterate nextState state0) !! 25
+    print $ countStonesAfter 25 state0
 
-    print $ sum
-          . map snd
-          . Map.assocs
-          $ (iterate nextState state0) !! 75
+    print $ countStonesAfter 75 state0
+
     print $ "Done."
-
