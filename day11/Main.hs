@@ -1,36 +1,55 @@
 module Main where
 
-import Utils (readInt, tok)
+import Data.Map (Map)
+import qualified Data.Map as Map
+import Utils (half, readInt, tok)
 
+
+-- Sugar
 type Stone = Int
-
--- Half an even list into a list of two lists.
-half :: [a] -> [[a]]
-half s
-    | odd (length s) = error "Main.half: List has odd number of element."
-    | otherwise      = [take h s, drop h s]
-      where
-        h = (length s) `div` 2
+type Count = Int
+type State = Map Stone Count
 
 
--- One transformation for a single stone.
-blink :: Stone -> [Stone]
-blink i
+-- Parse the input file into a State Map.
+parseInput :: String -> State
+parseInput = Map.fromListWith (+)
+           . map (\ i -> (i, 1))
+           . map readInt 
+           . tok " "
+
+
+-- One transformation step for a single given stone.
+nextStones :: Stone -> [Stone]
+nextStones i
     | i == 0                   = [1]
     | even . length . show $ i = map readInt . half . show $ i
     | otherwise                = [2024 * i]
 
 
--- One step for a given list of stones.
-step :: [Stone] -> [Stone]
-step = concatMap blink
+-- Given a State, find the next State. The key idea here is to
+-- tidy up the State at every step with fromListWith (+), so
+-- that every stone type and its count only occurs once.
+nextState :: State -> State
+nextState = Map.fromListWith (+)
+          . concatMap (\ (stone, count) -> [(nextStone, count)
+                                            | nextStone <- nextStones stone])
+          . Map.assocs
 
 
 main :: IO ()
 main = do
     fileContents <- readFile "input.txt"
-    let input    = map readInt . tok " " $ fileContents
+    let state0    = parseInput fileContents
 
-    print $ length $ ((iterate step input) !! 25)
+    print $ sum
+          . map snd
+          . Map.assocs
+          $ (iterate nextState state0) !! 25
+
+    print $ sum
+          . map snd
+          . Map.assocs
+          $ (iterate nextState state0) !! 75
     print $ "Done."
 
