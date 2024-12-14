@@ -3,7 +3,7 @@ module Main where
 import Data.Char (isDigit)
 import Data.List (group, sort)
 import Data.Maybe (fromJust, isJust)
-import Utils (dropWhile1, readInt, tok)
+import Utils (dropWhile1, map2, readInt, tok)
 
 type Position = (Int, Int)
 type Velocity = (Int, Int)
@@ -30,7 +30,8 @@ parseLine line = ((px, py), (vx, vy))
     isDigi   = \ c -> isDigit c || c == '-' 
 
 
--- Propagate a robot a given number of steps.
+-- Propagate a robot a given number of steps, returning only
+-- its final position.
 step :: Int -> Robot -> Position
 step n ((x0, y0), (vx, vy)) = (x, y)
   where
@@ -38,9 +39,10 @@ step n ((x0, y0), (vx, vy)) = (x, y)
     y = (y0 + n * vy) `mod` sizey
 
 
--- Given a robot position, determine in which quadrant it is
+-- Given a robot position, determine in which quadrant it is.
 -- Quadrants are counted starting in the upper right,
--- progressing counter-clockwise.
+-- progressing counter-clockwise. Robots on the border are in
+-- neither quadrant, hence Nothing.
 quadrant :: Position -> Maybe Int
 quadrant (x, y)
     | x > (sizex - 1) `div` 2 && y < (sizey - 1) `div` 2 = Just 1
@@ -50,7 +52,7 @@ quadrant (x, y)
     | otherwise                                          = Nothing
 
 
--- Calculate the score, based on a list of robot positions
+-- Calculate the score for Part 1, based on a list of robot positions
 score :: [Position] -> Int
 score = product
       . map length
@@ -59,6 +61,28 @@ score = product
       . map fromJust
       . filter isJust
       . map quadrant
+
+
+------------
+-- Part 2 --
+------------
+
+-- Calculate a vector's variance
+var :: [Int] -> Double
+var xs = (/(fromIntegral (length xs)))
+       . sum
+       . map (^2)
+       . map (subtract xbar . fromIntegral)
+       $ xs
+  where
+    xbar = (fromIntegral (sum xs)) / (fromIntegral (length xs))
+
+-- Calculate X and Y variance of a given list of positions
+varXY :: [(Int, Int)] -> (Double, Double)
+varXY positions = (varX, varY)
+  where
+    varX = var (map fst positions)
+    varY = var (map snd positions)
 
 
 main :: IO ()
@@ -70,5 +94,16 @@ main = do
     print $ score
           . map (step 100)
           $ robots
+
+    -- Part 2: We wait until variance drops significantly below its standard
+    -- value of ~800. Selected 500 as cutoff, which worked fine.
+    print $ fst
+          . head
+          . dropWhile (\(i, (varX, varY)) -> not (varX < 500 && varY < 500)) 
+          . zip [0..]
+          . map varXY
+          . map (\ n -> map (step n) robots)
+          $ [0..]
+
     print $ "Done."
 
