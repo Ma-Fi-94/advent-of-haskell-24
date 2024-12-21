@@ -112,10 +112,10 @@ findPath' (button:buttons) = go (findSegment' 'A' button)
 
 
 -- Part 1: Calculate the complexity of a code
---complexity :: [Button] -> Int
-complexity code = shortestLength -- * numericPart
+complexity :: [Button] -> Int
+complexity code = shortestLength * numericPart
   where
-    shortestLength = id -- minimum
+    shortestLength = minimum
                    $ map length
                    . concatMap findPath'
                    . concatMap findPath'
@@ -129,7 +129,7 @@ main = do
     fileContents <- readFile "input.txt"
     let codes = lines fileContents
 
-    print $ id -- sum 
+    print $ sum 
           . map complexity
           $ codes
 
