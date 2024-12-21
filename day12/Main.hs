@@ -83,9 +83,16 @@ main = do
     fileContents <- readFile "input.txt"
     let grid      = fromList . lines $ fileContents
 
+    -- Part 1: Straightforward finding of regions and adding their prices,
+    -- which are calculated by multiplying area and perimeter.
     print $ sum
           . map price
           $ findRegions grid
+
+    -- Part 2: Prices are now calculated differently. Main idea here is
+    -- to follow the perimeter of a region counterclockwise and count
+    -- the number of rotations we make along the way to get the number
+    -- of sides.
 
     print $ "Done."
 
