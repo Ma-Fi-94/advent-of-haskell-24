@@ -1,13 +1,15 @@
 module Main where
 
-import Data.List ((\\), sort, group)
+import Data.List ((\\), nub, group, sort)
+import Data.Tuple (swap)
 import Grid
 import Utils (tok)
 
 -- Sugar
-type Cell   = (Coord, Char)
-type Region = [Coord]
-type Edge   = ((Int, Int), (Int, Int))
+type Cell      = (Coord, Char)
+type Region    = [Coord]
+type Edgepoint = (Int, Int)
+type Edge      = (Edgepoint, Edgepoint)
 
 -- Given the input grid and one cell (coordinate + character),
 -- find the contiguous region of cells around the coordinate
@@ -56,21 +58,25 @@ size = length
 
 
 -- Helper to calculate the perimeter of a region.
+perimeter :: Region -> Int
+perimeter = length . regionEdges
+
+
+-- Get all the edges of a given region.
 -- The idea is to enumerate all borders of every
 -- cell of the region, then to check which of these
 -- borders occur exactly once.
-perimeter :: Region -> Int
-perimeter = length
-          . map head
-          . filter ((==1) . length)
-          . group
-          . sort
-          . concatMap edges
+regionEdges :: Region -> [Edge]
+regionEdges = map head
+            . filter ((==1) . length)
+            . group
+            . sort
+            . concatMap coordEdges
 
 
 -- Map a given cell coordinate to its four edges.
-edges :: Coord -> [Edge]
-edges (r, c) = [left, right, upper, lower]
+coordEdges :: Coord -> [Edge]
+coordEdges (r, c) = [left, right, upper, lower]
   where
     left  = ((r, c), (r + 1, c))
     right = ((r, c + 1), (r + 1, c + 1))
@@ -88,11 +94,6 @@ main = do
     print $ sum
           . map price
           $ findRegions grid
-
-    -- Part 2: Prices are now calculated differently. Main idea here is
-    -- to follow the perimeter of a region counterclockwise and count
-    -- the number of rotations we make along the way to get the number
-    -- of sides.
 
     print $ "Done."
 
