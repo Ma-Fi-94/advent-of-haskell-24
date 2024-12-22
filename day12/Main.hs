@@ -8,8 +8,7 @@ import Utils (tok)
 -- Sugar
 type Cell      = (Coord, Char)
 type Region    = [Coord]
-type Edgepoint = (Int, Int)
-type Edge      = (Edgepoint, Edgepoint)
+type Edge      = (Coord, Char)
 
 -- Given the input grid and one cell (coordinate + character),
 -- find the contiguous region of cells around the coordinate
@@ -49,39 +48,21 @@ findRegions grid = go (enumerate grid)
 
 -- Calculate the price of a region by multiplying its perimeter and size.
 price :: Region -> Int
-price r = (perimeter r) * (size r)
+price region = (length (regionEdges region)) * (length region)
 
-
--- Trivial sugar to calculate the size of a region
-size :: Region -> Int
-size = length
-
-
--- Helper to calculate the perimeter of a region.
-perimeter :: Region -> Int
-perimeter = length . regionEdges
 
 
 -- Get all the edges of a given region.
--- The idea is to enumerate all borders of every
--- cell of the region, then to check which of these
--- borders occur exactly once.
 regionEdges :: Region -> [Edge]
-regionEdges = map head
-            . filter ((==1) . length)
-            . group
-            . sort
-            . concatMap coordEdges
-
-
--- Map a given cell coordinate to its four edges.
-coordEdges :: Coord -> [Edge]
-coordEdges (r, c) = [left, right, upper, lower]
+regionEdges region = filter (not . isInside)
+                   $ [(coord, position) | coord <- region,
+                                          position <- "NSWE"]
   where
-    left  = ((r, c), (r + 1, c))
-    right = ((r, c + 1), (r + 1, c + 1))
-    upper = ((r, c), (r, c + 1))
-    lower = ((r + 1, c), (r + 1, c + 1))
+    isInside ((r, c), 'N') = (r - 1, c) `elem` region
+    isInside ((r, c), 'S') = (r + 1, c) `elem` region
+    isInside ((r, c), 'W') = (r, c - 1) `elem` region
+    isInside ((r, c), 'E') = (r, c + 1) `elem` region
+
 
 
 main :: IO ()
