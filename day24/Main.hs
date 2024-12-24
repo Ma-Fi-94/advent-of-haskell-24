@@ -36,9 +36,11 @@ parseInput input = (knowns, unknowns)
             "XOR" -> (/=)
 
 
--- Solve the first unknown we can find for which we habe all required inputs.
-oneStep :: (Knowns, Unknowns) -> (Knowns, Unknowns)
-oneStep (knowns, unknowns) = (knowns', unknowns')
+-- Solve all the unknowns.
+solve :: (Knowns, Unknowns) -> Knowns
+solve (knowns, unknowns)
+    | Map.null unknowns = knowns
+    | otherwise         = solve (knowns', unknowns')
   where
     unknowns' = Map.delete (fst current) unknowns
     knowns'   = Map.insert (fst current) (snd current) knowns
@@ -48,15 +50,6 @@ oneStep (knowns, unknowns) = (knowns', unknowns')
               . filter (\ (name, (opd1, opd2, op))
                             -> all (`Map.member` knowns) [opd1, opd2])
               $ Map.assocs unknowns
-
-
--- Wrapper around oneStep to solve all unknowns.
-solve :: (Knowns, Unknowns) -> Knowns
-solve (knowns, unknowns)
-    | Map.null unknowns = knowns
-    | otherwise         = solve $ oneStep (knowns, unknowns)
-
-
 
 
 main :: IO ()
