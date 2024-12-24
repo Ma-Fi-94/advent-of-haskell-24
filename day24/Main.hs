@@ -2,7 +2,7 @@ module Main where
 
 
 import Data.Function (on)
-import Data.List (sortBy)
+import Data.List (intercalate, sort, sortBy)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Utils (readInt, tok)
@@ -74,6 +74,14 @@ main = do
           . filter ((=='z') . (!!0) . fst)
           . Map.assocs
           $ solve (knowns, unknowns)
+
+    -- Part 2: I manually made a table for every adder, tracking
+    -- input, output and inner wires. In my case, problems
+    -- occured at bits 18, 27, 31, and 39. Sorting the affected
+    -- gates and writing them as a single, comma-separated
+    -- string yields the answer.
+    print $ intercalate ","
+          $ sort ["hmt", "z18", "bfq", "z27", "z31", "hkh", "fjp", "bng"]
 
     print $ "Done."
 
