@@ -5,6 +5,8 @@ import Data.Tuple (swap)
 import Grid
 import Utils (tok)
 
+import Debug.Trace (trace)
+
 -- Sugar
 type Cell      = (Coord, Char)
 type Region    = [Coord]
@@ -64,6 +66,67 @@ regionEdges region = filter (not . isInside)
     isInside ((r, c), 'E') = (r, c + 1) `elem` region
 
 
+------------
+-- Part 2 --
+------------
+
+-- Assemble the border of a region. Caution: A border may have more than one
+-- border, namely if it has holes inside. Hence, we return a list of borders.
+assembleBorder :: [Edge] -> [[Edge]]
+assembleBorder (edge:edges) = go [] edge edges
+  where
+    go accum current rest
+        | null rest = [accum ++ [current]]
+        | otherwise = case findNext current of
+                          Just next -> go (accum ++ [current]) next (rest \\ [next])
+                          Nothing   -> (accum ++ [current]) : assembleBorder rest
+      where
+        findNext ((r, c), d)
+            -- Same cell, go along its border counterclockwise 
+            | d == 'N' && ((r, c), 'W') `elem` rest = Just ((r, c), 'W')
+            | d == 'W' && ((r, c), 'S') `elem` rest = Just ((r, c), 'S')
+            | d == 'S' && ((r, c), 'E') `elem` rest = Just ((r, c), 'E')
+            | d == 'E' && ((r, c), 'N') `elem` rest = Just ((r, c), 'N')
+
+            -- Continue edge in a straight line to adjacent cell
+            | d == 'N' && ((r, c - 1), 'N') `elem` rest = Just ((r, c - 1), 'N')
+            | d == 'W' && ((r + 1, c), 'W') `elem` rest = Just ((r + 1, c), 'W')
+            | d == 'S' && ((r, c + 1), 'S') `elem` rest = Just ((r, c + 1), 'S')
+            | d == 'E' && ((r - 1, c), 'E') `elem` rest = Just ((r - 1, c), 'E')
+
+            -- Corners in counterclockwise direction
+            | d == 'N' && ((r - 1, c - 1), 'E') `elem` rest = Just ((r - 1, c - 1), 'E')
+            | d == 'S' && ((r + 1, c + 1), 'W') `elem` rest = Just ((r + 1, c + 1), 'W')
+            | d == 'W' && ((r + 1, c - 1), 'N') `elem` rest = Just ((r + 1, c - 1), 'N')
+            | d == 'E' && ((r - 1, c + 1), 'S') `elem` rest = Just ((r - 1, c + 1), 'S')
+
+            -- Some rest we need to assemble in a next step (holes?)
+            | otherwise = Nothing
+
+
+
+-- Find the number of linear segments of a region.
+-- If the first and the large edge of the border have the same
+-- orientation, we need to subtract 1.
+nbSegments :: Region -> Int
+nbSegments region = sum
+                  $ map (\border -> if   cornerAtStart border
+                                    then nbGroups border
+                                    else (nbGroups border) - 1)
+                    borders
+
+
+  where
+    borders              = assembleBorder . regionEdges $ region
+    nbGroups border      = length . group . map snd $ border
+    cornerAtStart border = (snd (head border)) /= (snd (last border))
+
+
+-- Calculate the price of a region by multiplying its number of linear
+-- border segments and it size.
+price' :: Region -> Int
+price' region = (nbSegments region) * (length region)
+
 
 main :: IO ()
 main = do
@@ -75,6 +138,11 @@ main = do
     print $ sum
           . map price
           $ findRegions grid
+
+    -- Part 2
+    print $ sum
+          . map price'
+           $ findRegions grid
 
     print $ "Done."
 
