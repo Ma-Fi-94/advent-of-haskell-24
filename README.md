@@ -12,3 +12,11 @@ Current progress:
 |04|⭐️⭐️|09|⭐️⭐️|14|⭐️⭐️|19|⭐️⭐️|24|⭐️⭐️|
 |05|⭐️⭐️|10|⭐️⭐️|15|⭐️⭐️|20|⭐️⭐️|25|⭐️⭐️|
 
+Some cool stuff I learned / did / remembered this year:
+- Simple paralellisation in Haskell (see Utils.hs and Main.hs template)
+- Regexes in Haskell (see day 3)
+- The magic of Data.Map.union(s)With
+- Floating point operations in Haskell (see day 14)
+- A nice and sufficiently fast implementation of Dijkstra (see day 18)
+- Cliques and how to find them kiiinda efficiently (see day 23)
+
